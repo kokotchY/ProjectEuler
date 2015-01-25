@@ -1,7 +1,7 @@
-import Data.List (sort, group,sortBy,minimumBy)
-import Data.Char (digitToInt)
-import Data.List.Split (splitOn)
-import Control.Arrow ((&&&))
+import           Control.Arrow   ((&&&))
+import           Data.Char       (digitToInt)
+import           Data.List       (group, minimumBy, sort, sortBy)
+import           Data.List.Split (splitOn)
 
 data Cards = Number Int Suits | Jack Suits | Queen Suits | King Suits | Ace Suits
     deriving (Show, Eq)
