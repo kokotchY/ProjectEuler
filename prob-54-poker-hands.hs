@@ -1,6 +1,7 @@
-import Data.List (sort, group)
+import Data.List (sort, group,sortBy,minimumBy)
 import Data.Char (digitToInt)
 import Data.List.Split (splitOn)
+import Control.Arrow ((&&&))
 
 data Cards = Number Int Suits | Jack Suits | Queen Suits | King Suits | Ace Suits
     deriving (Show, Eq)
@@ -27,7 +28,7 @@ instance Ord Cards where
     a `compare` b = compare (getCardValue a) (getCardValue b)
 
 doTest :: IO ()
-doTest = mapM_ (putStrLn . show) $ map getHand cards
+doTest = mapM_ (print . getHand) cards
     where
         cards :: [[Cards]]
         cards = [[Number 2 Club, Number 3 Hearth, Number 4 Spade, Number 5 Spade, Number 6 Diamond],
@@ -53,10 +54,10 @@ main :: IO ()
 main = do
     fileContent <- readFile "p054_poker.txt"
     let winners = map (getWinner . convertLineToCards) $ lines fileContent
-    putStrLn $ "Winner player1: " ++ (show $ nbWin PlayerOne winners)
-    putStrLn $ "Winner player2: " ++ (show $ nbWin PlayerTwo winners)
-    putStrLn $ "Winner unknown: " ++ (show $ nbWin Unknown winners)
-    putStrLn $ "Winner unknown2: " ++ (show $ nbWin Unknown2 winners)
+    putStrLn $ "Winner player1: " ++ show (nbWin PlayerOne winners)
+    putStrLn $ "Winner player2: " ++ show (nbWin PlayerTwo winners)
+    putStrLn $ "Winner unknown: " ++ show (nbWin Unknown winners)
+    putStrLn $ "Winner unknown2: " ++ show (nbWin Unknown2 winners)
     where
         nbWin :: Player -> [Player] -> Int
         nbWin player winners = length $ filter (== player) winners
@@ -79,7 +80,7 @@ compareValue hand c1 c2 =
         otherwise -> Unknown
 
 highestCardValue :: [Cards] -> Int
-highestCardValue = getCardValue . head . reverse . sort
+highestCardValue = getCardValue . minimumBy (flip compare)
 
 highestPairValue :: [Cards] -> Int
 highestPairValue cards  = snd $ head $ filter ((==2) . fst) $ generalFrequency getCardValue cards
@@ -106,7 +107,7 @@ convertToCards :: String -> [Cards]
 convertToCards = map convertToCard . splitOn " "
 
 convertToCard :: String -> Cards
-convertToCard (v:s:[])
+convertToCard [v,s]
     | v `elem` map ((!! 0) . show) [2..9] = Number (digitToInt v) suits
     | v == 'T' = Number 10 suits
     | v == 'J' = Jack suits
@@ -180,16 +181,10 @@ isStraight cards = snd (foldl (\(previous, result) y -> if previous+1 == y then 
         cards' = map getCardValue cards
 
 createListFromNb :: Suits -> [Int] -> [Cards]
-createListFromNb suits = map (\x -> Number x suits)
+createListFromNb suits = map (`Number` suits)
 
 generalFrequency :: Eq a => (Cards -> a) -> [Cards] -> [(Int, a)]
-generalFrequency f list = map (\l -> (length l, head l)) (group (map f (sort list)))
-
-frequency :: [Cards] -> [(Int, Int)]
-frequency list = map (\l -> (length l, head l)) (group (map getCardValue (sort list)))
-
-frequency2 :: [Cards] -> [(Int, Suits)]
-frequency2 list = map (\l -> (length l, head l)) (group (map getSuits (sort list)))
+generalFrequency f list = map (length &&& head) (group (map f (sort list)))
 
 getSuits :: Cards -> Suits
 getSuits (Number _ suits) = suits
