@@ -12,16 +12,18 @@ data Suits = Club
     | Diamond
     deriving (Show, Eq)
 
-data Hand = HighCard
-    | OnePair
-    | TwoPair
-    | ThreeKind
-    | Straight
-    | Flush
-    | FullHouse
-    | FourKind
-    | StraightFlush
-    | RoyalFlush
+-- In comments, after each kind of hand, the value that can be assigned that
+-- represent the value that can be compared with each other
+data Hand = HighCard -- Highest card
+    | OnePair -- 15 + card pair
+    | TwoPair -- 29 + card pair 1 + card pair 2
+    | ThreeKind -- 56 + card three kind
+    | Straight -- 70 + value highest card
+    | Flush -- 84 + 1
+    | FullHouse -- 85 + card three kind + cart two kind
+    | FourKind -- 112 + card four kind
+    | StraightFlush -- 126 + value highest card
+    | RoyalFlush -- 139 + ace = 153
     deriving (Show, Ord, Eq)
 
 instance Ord Cards where
