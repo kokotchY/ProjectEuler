@@ -20,13 +20,12 @@ data Position = Position (Int, Int) Direction
     deriving (Show)
 
 getPos :: Int -> Position -> String -> Position
-getPos nbForward pos plan = getPos' nbForward pos (filter isUpper plan)
-    where
-        getPos' :: Int -> Position -> String -> Position
-        getPos' 0 pos _ = pos
-        getPos' nb pos ('F':xs) = let newPosition = moveForward pos in getPos (nb-1) newPosition xs
-        getPos' nb pos ('L':xs) = let newPosition = turnLeft pos in getPos nb newPosition xs
-        getPos' nb pos ('R':xs) = let newPosition = turnRight pos in getPos nb newPosition xs
+getPos 0 pos _ = pos
+getPos nb pos [] = pos
+getPos nb pos ('F':xs) = let newPosition = moveForward pos in getPos (nb-1) newPosition xs
+getPos nb pos ('L':xs) = let newPosition = turnLeft pos in getPos nb newPosition xs
+getPos nb pos ('R':xs) = let newPosition = turnRight pos in getPos nb newPosition xs
+getPos nb pos (_:xs) = getPos nb pos xs
 
 moveForward :: Position -> Position
 moveForward (Position (x,y) DUp) = (Position (x, y+1) DUp)
@@ -58,4 +57,7 @@ dragonNb = 50
 {-dragonNb = 10-}
 
 main :: IO ()
-main = putStrLn $ show $ getPos nbSteps startPosition $ d dragonNb
+main = putStrLn $ show $ getSolution nbSteps dragonNb
+
+getSolution :: Int -> Int -> Position
+getSolution nbSteps dragonNb = getPos nbSteps startPosition $ d dragonNb
